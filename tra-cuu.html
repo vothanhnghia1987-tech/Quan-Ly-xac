@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản Lý / Tra Cứu</title>
+    <!-- Các link CSS có sẵn -->
+</head>
+<body class="bg-light">
+    <!-- 🔑 CHÈN ĐOẠN KHÓA BẢO VỆ VÀO ĐÂY -->
+    <script>
+        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+    </script>
+    <!-- -------------------------------- -->
+
+    <!-- Phần nội dung giao diện và script xử lý khác ở bên dưới giữ nguyên -->
+    <div class="container mt-4 mb-5">
+        ...
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tra Cứu & Quản Lý Hồ Sơ Xác Hiến</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f4f7f6; }
+        .cadaver-img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            background-color: #e9ecef;
+            border-right: 1px solid #dee2e6;
+        }
+        .cadaver-card { transition: box-shadow 0.3s ease; }
+        .cadaver-card:hover { box-shadow: 0 8px 20px rgba(0,0,0,0.1) !important; }
+        .vung-mo-text {
+            white-space: pre-wrap; 
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        #loading { display: flex; justify-content: center; align-items: center; height: 200px; flex-direction: column; }
+        .table th, .table td { vertical-align: middle; }
+    </style>
+</head>
+<body>
+
+    <div class="container mt-4 mb-5">
+        <!-- Nút về trang chủ -->
+        <a href="index.html" class="btn btn-outline-secondary mb-4">
+            <i class="fa-solid fa-arrow-left"></i> Về trang chủ
+        </a>
+
+        <h2 class="text-center mb-4 text-primary fw-bold">TRA CỨU & QUẢN LÝ HỒ SƠ XÁC HIẾN</h2>
+
+        <!-- Khung tìm kiếm -->
+        <div class="card shadow-sm p-4 mb-4">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <select id="searchCriteria" class="form-select border-primary text-primary fw-bold">
+                        <option value="all">Tìm tất cả</option>
+                        <option value="hoTen">Theo Họ và Tên</option>
+                        <option value="maSoXac">Theo Mã số xác</option>
+                        <option value="maSoHoSo">Theo Mã hồ sơ</option>
+                    </select>
+                </div>
+                <div class="col-md-9">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-primary text-primary"><i class="fa-solid fa-search"></i></span>
+                        <input type="text" id="searchInput" class="form-control border-primary" placeholder="Nhập từ khóa (vd: Nguyễn Văn A, X001)...">
+                        <button class="btn btn-primary px-4 fw-bold" type="button" id="btnSearch">Tìm kiếm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Biểu tượng loading -->
+        <div id="loading">
+            <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
+            <h5 class="text-muted" id="loadingText">Đang tải dữ liệu từ hệ thống...</h5>
+        </div>
+
+        <!-- Nơi hiển thị kết quả -->
+        <div id="resultsArea" class="row g-4" style="display: none;"></div>
+        
+        <!-- Thông báo không tìm thấy -->
+        <div id="noResult" class="text-center text-danger mt-5" style="display: none;">
+            <h4><i class="fa-solid fa-circle-exclamation"></i> Không tìm thấy hồ sơ nào.</h4>
+        </div>
+    </div>
+
+    <!-- Modal (Hộp thoại) Sửa Thông Tin -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form id="editForm">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title"><i class="fa-solid fa-pen-to-square"></i> Cập nhật thông tin</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="editRowNumber">
+                        <input type="hidden" id="editOldLinkHinh">
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Mã số xác</label>
+                                <input type="text" class="form-control" id="editMaSoXac" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Mã số hồ sơ</label>
+                                <input type="text" class="form-control" id="editMaSoHoSo" required>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label fw-bold">Họ và tên người hiến</label>
+                                <input type="text" class="form-control" id="editHoTen" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Năm sinh</label>
+                                <input type="number" class="form-control" id="editNamSinh">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Năm mất</label>
+                                <input type="number" class="form-control" id="editNamMat">
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label fw-bold">Địa chỉ</label>
+                                <input type="text" class="form-control" id="editDiaChi">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">SĐT liên hệ</label>
+                                <input type="text" class="form-control" id="editSdt">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Quan hệ với người hiến</label>
+                                <input type="text" class="form-control" id="editQuanHe">
+                            </div>
+                            
+                            <!-- BẢNG ĐỘNG CHO PHẦN VÙNG MỔ -->
+                            <div class="col-md-12 mb-3 mt-2">
+                                <label class="form-label fw-bold">Lịch sử phục vụ (Các lớp, vùng mổ)</label>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-sm">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th style="width: 25%">Tên lớp</th>
+                                                <th style="width: 30%">Vùng mổ</th>
+                                                <th style="width: 35%">Ghi chú</th>
+                                                <th style="width: 10%" class="text-center">Xóa</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="editClassTableBody"></tbody>
+                                    </table>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addEditRow()">+ Thêm lớp</button>
+                            </div>
+
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label fw-bold">Đổi ảnh khác (Bỏ trống nếu giữ nguyên ảnh cũ)</label>
+                                <input type="file" class="form-control" id="editHinhAnh" accept="image/*">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary" id="btnSaveEdit">Lưu Thay Đổi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script xử lý -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // DÁN URL ỨNG DỤNG WEB CỦA THẦY VÀO ĐÂY
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxFsJ9GHvepEb-jz5b4H-UWcrmql-kjwATP5Y2fD-vbMNOV3fyQ_CE9YSGspvAEbS7fsg/exec"; 
+        
+        let allData = [];
+        let editModal;
+        const REGIONS = ["Đầu", "Mặt", "Cổ", "Ngực", "Bụng", "Nách", "Cánh tay", "Cẳng tay", "Bàn tay", "Mông", "Đùi", "Cẳng chân", "Bàn chân", "Khớp háng", "Khớp gối"];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            editModal = new bootstrap.Modal(document.getElementById('editModal'));
+            loadData();
+        });
+
+        function loadData() {
+            const loadingDiv = document.getElementById('loading');
+            loadingDiv.style.display = 'flex';
+            document.getElementById('resultsArea').style.display = 'none';
+
+            fetch(SCRIPT_URL)
+                .then(response => response.json())
+                .then(data => {
+                    allData = data.reverse(); 
+                    loadingDiv.style.display = 'none';
+                    document.getElementById('resultsArea').style.display = 'flex';
+                    renderData(allData); 
+                })
+                .catch(error => {
+                    console.error("Lỗi:", error);
+                    loadingDiv.innerHTML = `<h4 class="text-danger">Lỗi kết nối dữ liệu!</h4>`;
+                });
+        }
+
+        function renderData(dataList) {
+            const resultsArea = document.getElementById('resultsArea');
+            const noResult = document.getElementById('noResult');
+            resultsArea.innerHTML = '';
+
+            if (dataList.length === 0) {
+                noResult.style.display = 'block';
+                return;
+            } else {
+                noResult.style.display = 'none';
+            }
+
+            dataList.forEach(item => {
+                const imgSrc = (item.linkHinh && item.linkHinh.includes("http")) ? item.linkHinh : "https://via.placeholder.com/300x250?text=Chưa+có+ảnh";
+                const itemData = encodeURIComponent(JSON.stringify(item));
+
+                const cardHTML = `
+                    <div class="col-12">
+                        <div class="card shadow-sm cadaver-card h-100">
+                            <div class="row g-0">
+                                <div class="col-md-3 d-flex align-items-center bg-white rounded-start">
+                                    <img src="${imgSrc}" class="cadaver-img img-fluid rounded-start">
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                                            <h4 class="card-title text-primary mb-0 fw-bold">${item.hoTen}</h4>
+                                            <div>
+                                                <!-- NÚT SỬA VÀ XÓA -->
+                                                <button class="btn btn-sm btn-warning fw-bold me-2" onclick="openEditModal('${itemData}')">
+                                                    <i class="fa-solid fa-pen-to-square"></i> Sửa
+                                                </button>
+                                                <button class="btn btn-sm btn-danger fw-bold" onclick="deleteRecord(${item.rowNumber}, '${item.hoTen}')">
+                                                    <i class="fa-solid fa-trash"></i> Xóa
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <p class="mb-1"><strong>Mã xác:</strong> <span class="badge bg-danger">${item.maSoXac}</span></p>
+                                                <p class="mb-1"><strong>Mã HS:</strong> <span class="badge bg-secondary">${item.maSoHoSo}</span></p>
+                                                <p class="mb-1 mt-2"><strong>Năm sinh - mất:</strong> ${item.namSinh || '?'} - ${item.namMat || '?'}</p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p class="mb-1"><strong>Địa chỉ:</strong> ${item.diaChi || 'Chưa cập nhật'}</p>
+                                                <p class="mb-1"><strong>SĐT:</strong> ${item.sdt || 'Không có'}</p>
+                                                <p class="mb-1"><strong>Quan hệ:</strong> ${item.quanHe || 'Không rõ'}</p>
+                                            </div>
+                                        </div>
+                                        <div class="mt-2">
+                                            <p class="mb-1 fw-bold text-success"><i class="fa-solid fa-list-check"></i> Lớp đã phục vụ phẫu tích:</p>
+                                            <div class="vung-mo-text border border-success-subtle">${item.vungMo || 'Chưa có dữ liệu phục vụ'}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                resultsArea.innerHTML += cardHTML;
+            });
+        }
+
+        // =====================================
+        // TÍNH NĂNG XÓA HỒ SƠ CÓ HỘP THOẠI XÁC NHẬN
+        // =====================================
+        function deleteRecord(rowNumber, hoTen) {
+            if (confirm(`⚠️ CẢNH BÁO:\nBạn có chắc chắn muốn XÓA vĩnh viễn hồ sơ của người hiến "${hoTen}" không?\nHành động này không thể hoàn tác!`)) {
+                
+                const loadingDiv = document.getElementById('loading');
+                loadingDiv.style.display = 'flex';
+                document.getElementById('resultsArea').style.display = 'none';
+
+                let payload = {
+                    action: "delete",
+                    rowNumber: rowNumber
+                };
+
+                fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                })
+                .then(response => response.json())
+                .then(result => {
+                    alert("Đã xóa hồ sơ thành công!");
+                    loadData(); // Tải lại danh sách mới
+                })
+                .catch(error => {
+                    console.error(error);
+                    alert("Có lỗi xảy ra khi xóa!");
+                    loadData();
+                });
+            }
+        }
+
+        // TÌM KIẾM
+        function filterData() {
+            const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
+            const criteria = document.getElementById('searchCriteria').value;
+            const filteredData = allData.filter(item => {
+                const hoTenStr = (item.hoTen || '').toLowerCase();
+                const maSoXacStr = (item.maSoXac || '').toLowerCase();
+                const maSoHoSoStr = (item.maSoHoSo || '').toLowerCase();
+                
+                if (criteria === 'all') return hoTenStr.includes(keyword) || maSoXacStr.includes(keyword) || maSoHoSoStr.includes(keyword);
+                if (criteria === 'hoTen') return hoTenStr.includes(keyword);
+                if (criteria === 'maSoXac') return maSoXacStr.includes(keyword);
+                if (criteria === 'maSoHoSo') return maSoHoSoStr.includes(keyword);
+            });
+            renderData(filteredData);
+        }
+
+        document.getElementById('btnSearch').addEventListener('click', filterData);
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') filterData();
+        });
+
+        // BẢNG ĐỘNG TRONG MODAL SỬA
+        function addEditRow(nameValue = "", regionValue = "", noteValue = "") {
+            const tbody = document.getElementById('editClassTableBody');
+            const row = document.createElement('tr');
+            
+            let options = '<option value="">-- Chọn vùng --</option>';
+            REGIONS.forEach(r => {
+                let selected = (regionValue === r) ? 'selected' : '';
+                options += `<option value="${r}" ${selected}>${r}</option>`;
+            });
+
+            row.innerHTML = `
+                <td><input type="text" class="form-control edit-class-name" placeholder="VD: Y2022" value="${nameValue}"></td>
+                <td><select class="form-select edit-class-region">${options}</select></td>
+                <td><input type="text" class="form-control edit-class-note" placeholder="..." value="${noteValue}"></td>
+                <td class="text-center"><button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove()">X</button></td>
+            `;
+            tbody.appendChild(row);
+        }
+
+        function openEditModal(itemDataStr) {
+            const item = JSON.parse(decodeURIComponent(itemDataStr));
+            document.getElementById('editRowNumber').value = item.rowNumber;
+            document.getElementById('editOldLinkHinh').value = item.linkHinh || "";
+            document.getElementById('editMaSoXac').value = item.maSoXac;
+            document.getElementById('editMaSoHoSo').value = item.maSoHoSo;
+            document.getElementById('editHoTen').value = item.hoTen;
+            document.getElementById('editNamSinh').value = item.namSinh;
+            document.getElementById('editNamMat').value = item.namMat;
+            document.getElementById('editDiaChi').value = item.diaChi;
+            document.getElementById('editSdt').value = item.sdt;
+            document.getElementById('editQuanHe').value = item.quanHe;
+            document.getElementById('editHinhAnh').value = ""; 
+            
+            const tbody = document.getElementById('editClassTableBody');
+            tbody.innerHTML = ""; 
+
+            const vungMoText = item.vungMo || "";
+            if (vungMoText.trim() === "") {
+                addEditRow();
+            } else {
+                const lines = vungMoText.split('\n');
+                lines.forEach(line => {
+                    if (line.trim() !== "") {
+                        let name = "", region = "", note = "";
+                        if (line.includes("Lớp:") || line.includes("Vùng:")) {
+                            let parts = line.split(" | ");
+                            parts.forEach(part => {
+                                if (part.startsWith("Lớp: ")) name = part.replace("Lớp: ", "").trim();
+                                if (part.startsWith("Vùng: ")) region = part.replace("Vùng: ", "").trim();
+                                if (part.startsWith("Ghi chú: ")) note = part.replace("Ghi chú: ", "").trim();
+                            });
+                            if (name === "---") name = "";
+                            if (region === "---") region = "";
+                            addEditRow(name, region, note);
+                        } else {
+                            addEditRow("", "", line.trim());
+                        }
+                    }
+                });
+            }
+            editModal.show();
+        }
+
+        function getBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        document.getElementById('editForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSaveEdit');
+            btn.innerHTML = "Đang lưu thay đổi...";
+            btn.disabled = true;
+
+            let classList = [];
+            document.querySelectorAll('#editClassTableBody tr').forEach(row => {
+                let name = row.querySelector('.edit-class-name').value.trim();
+                let region = row.querySelector('.edit-class-region').value;
+                let note = row.querySelector('.edit-class-note').value.trim();
+                
+                if (name || region || note) { 
+                    let noteText = note ? ` | Ghi chú: ${note}` : '';
+                    classList.push(`Lớp: ${name || '---'} | Vùng: ${region || '---'}${noteText}`);
+                }
+            });
+
+            let payload = {
+                action: "update",
+                rowNumber: document.getElementById('editRowNumber').value,
+                oldLinkHinh: document.getElementById('editOldLinkHinh').value,
+                maSoXac: document.getElementById('editMaSoXac').value,
+                maSoHoSo: document.getElementById('editMaSoHoSo').value,
+                hoTen: document.getElementById('editHoTen').value,
+                namSinh: document.getElementById('editNamSinh').value,
+                namMat: document.getElementById('editNamMat').value,
+                diaChi: document.getElementById('editDiaChi').value,
+                sdt: document.getElementById('editSdt').value,
+                quanHe: document.getElementById('editQuanHe').value,
+                vungMo: classList.join('\n')
+            };
+
+            const fileInput = document.getElementById('editHinhAnh');
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                if(file.size > 5 * 1024 * 1024) {
+                    alert("Kích thước ảnh phải dưới 5MB.");
+                    btn.innerHTML = "Lưu Thay Đổi";
+                    btn.disabled = false;
+                    return;
+                }
+                payload.base64Data = await getBase64(file);
+                payload.fileName = file.name;
+                payload.mimeType = file.type;
+            }
+
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(result => {
+                alert("Cập nhật hồ sơ thành công!");
+                editModal.hide();
+                btn.innerHTML = "Lưu Thay Đổi";
+                btn.disabled = false;
+                loadData(); 
+            })
+            .catch(error => {
+                console.error(error);
+                alert("Lỗi khi cập nhật!");
+                btn.innerHTML = "Lưu Thay Đổi";
+                btn.disabled = false;
+            });
+        });
+    </script>
+/<script>
+        // === DÁN ĐOẠN NÀY VÀO DÒNG ĐẦU TIÊN CỦA THẺ SCRIPT ===
+        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+        // ===================================================
+
+        // Các đoạn code sẵn có ở dưới giữ nguyên không thay đổi:
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxdt_vNCMUHD1Tm_9h5qbqS8EdAiIGFmgjahBnxL-vAw-mY2Ts7SbithdGpciV9SqH56A/exec"; 
+        let allData = [];
+        ...
+    </script>
+</body>
+</html>

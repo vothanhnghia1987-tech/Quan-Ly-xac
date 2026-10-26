@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản Lý / Tra Cứu</title>
+    <!-- Các link CSS có sẵn -->
+</head>
+<body class="bg-light">
+    <!-- 🔑 CHÈN ĐOẠN KHÓA BẢO VỆ VÀO ĐÂY -->
+    <script>
+        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+    </script>
+    <!-- -------------------------------- -->
+
+    <!-- Phần nội dung giao diện và script xử lý khác ở bên dưới giữ nguyên -->
+    <div class="container mt-4 mb-5">
+        ...
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Xác Hiến - Giải Phẫu Học</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome cho biểu tượng -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f4f7f6; }
+        .img-preview-box {
+            width: 100%;
+            height: 280px;
+            border: 2px dashed #adb5bd;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background-color: #f8f9fa;
+        }
+        .img-preview-box img {
+            max-width: 100%;
+            max-height: 100%;
+            display: none;
+            object-fit: contain;
+        }
+        .table th, .table td {
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-4 mb-5">
+        <!-- Nút về trang chủ -->
+        <a href="index.html" class="btn btn-outline-secondary mb-4">
+            <i class="fa-solid fa-arrow-left"></i> Về trang chủ
+        </a>
+
+        <h2 class="text-center mb-4 text-primary fw-bold">HỆ THỐNG QUẢN LÝ XÁC HIẾN</h2>
+        
+        <div class="card shadow-sm p-4 mb-5">
+            <h4 class="mb-4 text-secondary"><i class="fa-solid fa-file-circle-plus"></i> Thêm hồ sơ xác hiến mới</h4>
+            <form id="cadaverForm">
+                <div class="row">
+                    <!-- CỘT TRÁI: THÔNG TIN NHẬP LIỆU -->
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Mã số xác</label>
+                                <input type="text" class="form-control" name="maSoXac" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Mã số hồ sơ hiến</label>
+                                <input type="text" class="form-control" name="maSoHoSo" required>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label fw-bold">Họ và tên người hiến</label>
+                                <input type="text" class="form-control" name="hoTen" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Năm sinh</label>
+                                <input type="number" class="form-control" name="namSinh">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Năm mất</label>
+                                <input type="number" class="form-control" name="namMat">
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label fw-bold">Địa chỉ</label>
+                                <input type="text" class="form-control" name="diaChi">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Số điện thoại liên hệ</label>
+                                <input type="text" class="form-control" name="sdt">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Quan hệ với người hiến</label>
+                                <input type="text" class="form-control" name="quanHe" placeholder="VD: Con trai, Vợ...">
+                            </div>
+                        </div>
+
+                        <!-- BẢNG ĐỘNG CHO PHẦN LỚP HỌC VÀ VÙNG MỔ -->
+                        <div class="mb-3 mt-4">
+                            <label class="form-label fw-bold">Đã phục vụ cho các lớp sau:</label>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-sm" id="classTable">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 25%">Tên lớp</th>
+                                            <th style="width: 30%">Vùng mổ</th>
+                                            <th style="width: 35%">Ghi chú</th>
+                                            <th style="width: 10%" class="text-center">Xóa</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="classTableBody">
+                                        <!-- Javascript sẽ tự động chèn dòng vào đây -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addRow()">+ Thêm lớp</button>
+                        </div>
+                    </div>
+
+                    <!-- CỘT PHẢI: HÌNH ẢNH NHẬN DIỆN -->
+                    <div class="col-md-4 d-flex flex-column">
+                        <label class="form-label fw-bold">Hình ảnh nhận diện</label>
+                        <div class="img-preview-box mb-2">
+                            <img id="imgPreview" src="" alt="Ảnh xem trước">
+                            <span id="imgPlaceholder" class="text-muted">Chưa chọn ảnh</span>
+                        </div>
+                        <input type="file" class="form-control" name="hinhAnh" id="hinhAnhInput" accept="image/*">
+                        <small class="text-muted mt-1">Ảnh chọn sẽ hiển thị xem trước trực tiếp.</small>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+                <button type="submit" class="btn btn-primary w-100 py-2 fs-5 fw-bold" id="submitBtn">Lưu Hồ Sơ Xác Hiến</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // THẦY DÁN WEB APP URL CỦA THẦY VÀO ĐÂY
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxFsJ9GHvepEb-jz5b4H-UWcrmql-kjwATP5Y2fD-vbMNOV3fyQ_CE9YSGspvAEbS7fsg/exec"; 
+
+        // Danh sách vùng mổ cố định
+        const REGIONS = ["Đầu", "Mặt", "Cổ", "Ngực", "Bụng", "Nách", "Cánh tay", "Cẳng tay", "Bàn tay", "Mông", "Đùi", "Cẳng chân", "Bàn chân", "Khớp háng", "Khớp gối"];
+
+        // Khởi tạo 1 dòng trống cho bảng khi tải trang
+        document.addEventListener("DOMContentLoaded", () => {
+            addRow();
+        });
+
+        // Hàm thêm dòng mới vào bảng
+        function addRow() {
+            const tbody = document.getElementById('classTableBody');
+            const row = document.createElement('tr');
+            
+            let options = '<option value="">-- Chọn vùng --</option>';
+            REGIONS.forEach(r => {
+                options += `<option value="${r}">${r}</option>`;
+            });
+
+            row.innerHTML = `
+                <td><input type="text" class="form-control class-name" placeholder="VD: Y2022"></td>
+                <td><select class="form-select class-region">${options}</select></td>
+                <td><input type="text" class="form-control class-note" placeholder="..."></td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove()">X</button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        }
+
+        // Hiển thị ảnh xem trước ngay khi chọn file
+        document.getElementById('hinhAnhInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const imgPreview = document.getElementById('imgPreview');
+            const imgPlaceholder = document.getElementById('imgPlaceholder');
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imgPreview.src = e.target.result;
+                    imgPreview.style.display = 'block';
+                    imgPlaceholder.style.display = 'none';
+                }
+                reader.readAsDataURL(file);
+            } else {
+                imgPreview.style.display = 'none';
+                imgPlaceholder.style.display = 'block';
+                imgPreview.src = "";
+            }
+        });
+
+        // Hàm chuyển đổi File sang chuỗi Base64
+        function getBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        // Xử lý gửi Form
+        document.getElementById('cadaverForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.innerHTML = "Đang xử lý ảnh và lưu...";
+            btn.disabled = true;
+
+            // Thu thập dữ liệu từ bảng lớp học
+            let classList = [];
+            document.querySelectorAll('#classTableBody tr').forEach(row => {
+                let name = row.querySelector('.class-name').value.trim();
+                let region = row.querySelector('.class-region').value;
+                let note = row.querySelector('.class-note').value.trim();
+                
+                if (name || region || note) { 
+                    let noteText = note ? ` | Ghi chú: ${note}` : '';
+                    classList.push(`Lớp: ${name || '---'} | Vùng: ${region || '---'}${noteText}`);
+                }
+            });
+
+            let payload = {
+                maSoXac: document.querySelector('[name="maSoXac"]').value,
+                maSoHoSo: document.querySelector('[name="maSoHoSo"]').value,
+                hoTen: document.querySelector('[name="hoTen"]').value,
+                namSinh: document.querySelector('[name="namSinh"]').value,
+                namMat: document.querySelector('[name="namMat"]').value,
+                diaChi: document.querySelector('[name="diaChi"]').value,
+                sdt: document.querySelector('[name="sdt"]').value,
+                quanHe: document.querySelector('[name="quanHe"]').value,
+                vungMo: classList.join('\n') // Gom các dòng lại cách nhau bằng dấu xuống dòng
+            };
+
+            const fileInput = document.getElementById('hinhAnhInput');
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                if(file.size > 5 * 1024 * 1024) {
+                    alert("Vui lòng chọn ảnh có kích thước dưới 5MB.");
+                    btn.innerHTML = "Lưu Hồ Sơ Xác Hiến";
+                    btn.disabled = false;
+                    return;
+                }
+                payload.base64Data = await getBase64(file);
+                payload.fileName = file.name;
+                payload.mimeType = file.type;
+            }
+
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(result => {
+                alert("Đã lưu hồ sơ và upload ảnh thành công!");
+                document.getElementById('cadaverForm').reset();
+                document.getElementById('imgPreview').style.display = 'none';
+                document.getElementById('imgPlaceholder').style.display = 'block';
+                
+                // Reset lại bảng về 1 dòng trống
+                document.getElementById('classTableBody').innerHTML = '';
+                addRow();
+
+                btn.innerHTML = "Lưu Hồ Sơ Xác Hiến";
+                btn.disabled = false;
+            })
+            .catch(error => {
+                console.error(error);
+                alert("Có lỗi xảy ra trong quá trình lưu!");
+                btn.innerHTML = "Lưu Hồ Sơ Xác Hiến";
+                btn.disabled = false;
+            });
+        });
+    </script>
+</body>
+</html>
