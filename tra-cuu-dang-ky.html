@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tra Cứu Đăng Ký Hiến Xác</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f4f7f6; }
+        .cadaver-card { transition: box-shadow 0.3s ease; border-left: 5px solid #198754; }
+        .cadaver-card:hover { box-shadow: 0 8px 20px rgba(0,0,0,0.1) !important; }
+        #loading { display: flex; justify-content: center; align-items: center; height: 200px; flex-direction: column; }
+    </style>
+</head>
+<body>
+    <script>
+        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+    </script>
+
+    <div class="container mt-4 mb-5">
+        <a href="index.html" class="btn btn-outline-secondary mb-4">
+            <i class="fa-solid fa-arrow-left"></i> Về trang chủ
+        </a>
+
+        <h2 class="text-center mb-4 text-success fw-bold">TRA CỨU & QUẢN LÝ HỒ SƠ ĐĂNG KÝ</h2>
+
+        <!-- Khung tìm kiếm -->
+        <div class="card shadow-sm p-4 mb-4">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <select id="searchCriteria" class="form-select border-success text-success fw-bold">
+                        <option value="all">Tìm tất cả</option>
+                        <option value="hoTen">Theo Họ và Tên</option>
+                        <option value="maSoHoSo">Theo Mã hồ sơ</option>
+                    </select>
+                </div>
+                <div class="col-md-9">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-success text-success"><i class="fa-solid fa-search"></i></span>
+                        <input type="text" id="searchInput" class="form-control border-success" placeholder="Nhập tên hoặc mã hồ sơ...">
+                        <button class="btn btn-success px-4 fw-bold" type="button" id="btnSearch">Tìm kiếm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="loading">
+            <div class="spinner-border text-success mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
+            <h5 class="text-muted" id="loadingText">Đang tải dữ liệu từ hệ thống...</h5>
+        </div>
+
+        <div id="resultsArea" class="row g-4" style="display: none;"></div>
+        
+        <div id="noResult" class="text-center text-danger mt-5" style="display: none;">
+            <h4><i class="fa-solid fa-circle-exclamation"></i> Không tìm thấy hồ sơ đăng ký nào.</h4>
+        </div>
+    </div>
+
+    <!-- Modal (Hộp thoại) Sửa Thông Tin Đăng Ký -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form id="editForm">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title"><i class="fa-solid fa-pen-to-square"></i> Cập nhật hồ sơ đăng ký</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="editRowNumber">
+                        <input type="hidden" id="editOldLinkFile">
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">Mã số hồ sơ</label>
+                                <input type="text" class="form-control" id="editMaSoHoSo" required>
+                            </div>
+                            <div class="col-md-8 mb-3">
+                                <label class="form-label fw-bold">Họ và tên</label>
+                                <input type="text" class="form-control" id="editHoTen" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">Ngày sinh</label>
+                                <input type="date" class="form-control" id="editNgaySinh" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">Giới tính</label>
+                                <select class="form-select" id="editGioiTinh" required>
+                                    <option value="Nam">Nam</option>
+                                    <option value="Nữ">Nữ</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">Ngày đăng ký</label>
+                                <input type="date" class="form-control" id="editNgayDangKy" required>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label fw-bold">Địa chỉ</label>
+                                <input type="text" class="form-control" id="editDiaChi">
+                            </div>
+                            
+                            <h6 class="text-success mt-2 border-bottom pb-2"><i class="fa-solid fa-phone"></i> Liên hệ</h6>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">SĐT cá nhân</label>
+                                <input type="text" class="form-control" id="editSdtCaNhan">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">SĐT người thân</label>
+                                <input type="text" class="form-control" id="editSdtNguoiThan">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">Quan hệ</label>
+                                <input type="text" class="form-control" id="editQuanHe">
+                            </div>
+
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label fw-bold">Tải lại Đơn đăng ký (Bỏ trống nếu giữ nguyên file cũ)</label>
+                                <input type="file" class="form-control border-success" id="editFilePdf" accept="application/pdf">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-success" id="btnSaveEdit">Lưu Thay Đổi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script xử lý -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // DÁN URL ỨNG DỤNG WEB CỦA THẦY VÀO ĐÂY
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxFsJ9GHvepEb-jz5b4H-UWcrmql-kjwATP5Y2fD-vbMNOV3fyQ_CE9YSGspvAEbS7fsg/exec"; 
+        
+        let allData = [];
+        let editModal;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            editModal = new bootstrap.Modal(document.getElementById('editModal'));
+            loadData();
+        });
+
+        function loadData() {
+            const loadingDiv = document.getElementById('loading');
+            loadingDiv.style.display = 'flex';
+            document.getElementById('resultsArea').style.display = 'none';
+
+            fetch(SCRIPT_URL + "?sheet=DangKy_HienXac")
+                .then(response => response.json())
+                .then(data => {
+                    allData = data.reverse(); 
+                    loadingDiv.style.display = 'none';
+                    document.getElementById('resultsArea').style.display = 'flex';
+                    renderData(allData); 
+                })
+                .catch(error => {
+                    loadingDiv.innerHTML = `<h4 class="text-danger">Lỗi kết nối dữ liệu!</h4>`;
+                });
+        }
+
+        function renderData(dataList) {
+            const resultsArea = document.getElementById('resultsArea');
+            const noResult = document.getElementById('noResult');
+            resultsArea.innerHTML = '';
+
+            if (dataList.length === 0) {
+                noResult.style.display = 'block';
+                return;
+            } else {
+                noResult.style.display = 'none';
+            }
+
+            dataList.forEach(item => {
+                let pdfButton = item.linkFile && item.linkFile.includes("http") 
+                    ? `<a href="${item.linkFile}" target="_blank" class="btn btn-sm btn-outline-success mt-2"><i class="fa-solid fa-file-pdf"></i> Xem Đơn PDF</a>` 
+                    : `<span class="text-muted fst-italic mt-2 d-block small">Chưa đính kèm PDF</span>`;
+                
+                let warningText = item.daHien 
+                    ? `<div class="text-danger fw-bold fs-6 mt-3 py-2 px-2 bg-danger-subtle border border-danger rounded text-center">
+                          <i class="fa-solid fa-triangle-exclamation"></i> XÁC ĐÃ HIẾN TẠI BỘ MÔN
+                       </div>` 
+                    : ``;
+
+                const itemData = encodeURIComponent(JSON.stringify(item));
+
+                const cardHTML = `
+                    <div class="col-md-6">
+                        <div class="card shadow-sm cadaver-card h-100 p-3">
+                            <div class="d-flex justify-content-between align-items-start mb-3 border-bottom pb-2">
+                                <div>
+                                    <h4 class="card-title text-success mb-1 fw-bold">${item.hoTen}</h4>
+                                    <span class="badge bg-secondary fs-6">${item.maSoHoSo}</span>
+                                </div>
+                                <div class="text-end">
+                                    <button class="btn btn-sm btn-warning fw-bold mb-1" onclick="openEditModal('${itemData}')">
+                                        <i class="fa-solid fa-pen-to-square"></i> Sửa
+                                    </button><br>
+                                    <button class="btn btn-sm btn-danger fw-bold" onclick="deleteRecord(${item.rowNumber}, '${item.hoTen}')">
+                                        <i class="fa-solid fa-trash"></i> Xóa
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <p class="mb-1"><strong>Ngày sinh:</strong> ${item.ngaySinh}</p>
+                                    <p class="mb-1"><strong>Giới tính:</strong> ${item.gioiTinh}</p>
+                                    <p class="mb-1"><strong>SĐT cá nhân:</strong> ${item.sdtCaNhan || 'Không có'}</p>
+                                </div>
+                                <div class="col-sm-6">
+                                    <p class="mb-1"><strong>Ngày ĐK:</strong> <span class="text-primary fw-bold">${item.ngayDangKy}</span></p>
+                                    <p class="mb-1"><strong>SĐT người thân:</strong> ${item.sdtNguoiThan || 'Không có'}</p>
+                                    <p class="mb-1"><strong>Quan hệ:</strong> ${item.quanHe || 'Không rõ'}</p>
+                                </div>
+                            </div>
+                            <p class="mb-1 mt-2"><strong>Địa chỉ:</strong> ${item.diaChi}</p>
+                            <div>${pdfButton}</div>
+                            ${warningText}
+                        </div>
+                    </div>
+                `;
+                resultsArea.innerHTML += cardHTML;
+            });
+        }
+
+        // TÌM KIẾM
+        function filterData() {
+            const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
+            const criteria = document.getElementById('searchCriteria').value;
+            const filteredData = allData.filter(item => {
+                const hoTenStr = (item.hoTen || '').toLowerCase();
+                const maSoHoSoStr = (item.maSoHoSo || '').toLowerCase();
+                
+                if (criteria === 'all') return hoTenStr.includes(keyword) || maSoHoSoStr.includes(keyword);
+                if (criteria === 'hoTen') return hoTenStr.includes(keyword);
+                if (criteria === 'maSoHoSo') return maSoHoSoStr.includes(keyword);
+            });
+            renderData(filteredData);
+        }
+
+        document.getElementById('btnSearch').addEventListener('click', filterData);
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') filterData();
+        });
+
+        // ==========================================
+        // CÁC HÀM XỬ LÝ SỬA / XÓA
+        // ==========================================
+
+        // Hàm chuyển ngày DD/MM/YYYY về YYYY-MM-DD để đưa vào input date
+        function parseDateForInput(dateString) {
+            if (!dateString) return "";
+            let cleanDate = dateString.replace("'", ""); // Bỏ dấu nháy nếu có
+            const parts = cleanDate.split('/');
+            if (parts.length === 3) {
+                return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+            }
+            return cleanDate;
+        }
+
+        // Hàm chuyển ngày YYYY-MM-DD sang chuẩn Việt Nam DD/MM/YYYY để gửi về Sheet
+        function formatDateToVN(dateString) {
+            if (!dateString) return "";
+            const parts = dateString.split('-');
+            if (parts.length === 3) {
+                return `'${parts[2]}/${parts[1]}/${parts[0]}`; 
+            }
+            return dateString;
+        }
+
+        // XÓA HỒ SƠ
+        function deleteRecord(rowNumber, hoTen) {
+            if (confirm(`⚠️ CẢNH BÁO:\nBạn có chắc chắn muốn XÓA vĩnh viễn hồ sơ đăng ký của "${hoTen}" không?\nHành động này không thể hoàn tác!`)) {
+                
+                const loadingDiv = document.getElementById('loading');
+                loadingDiv.style.display = 'flex';
+                document.getElementById('resultsArea').style.display = 'none';
+
+                let payload = {
+                    action: "delete",
+                    sheetName: "DangKy_HienXac",
+                    rowNumber: rowNumber
+                };
+
+                fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                })
+                .then(response => response.json())
+                .then(result => {
+                    alert("Đã xóa hồ sơ đăng ký thành công!");
+                    loadData(); 
+                })
+                .catch(error => {
+                    alert("Có lỗi xảy ra khi xóa!");
+                    loadData();
+                });
+            }
+        }
+
+        // MỞ MODAL SỬA
+        function openEditModal(itemDataStr) {
+            const item = JSON.parse(decodeURIComponent(itemDataStr));
+            document.getElementById('editRowNumber').value = item.rowNumber;
+            document.getElementById('editOldLinkFile').value = item.linkFile || "";
+            
+            document.getElementById('editMaSoHoSo').value = item.maSoHoSo;
+            document.getElementById('editHoTen').value = item.hoTen;
+            document.getElementById('editNgaySinh').value = parseDateForInput(item.ngaySinh);
+            document.getElementById('editGioiTinh').value = item.gioiTinh;
+            document.getElementById('editNgayDangKy').value = parseDateForInput(item.ngayDangKy);
+            document.getElementById('editDiaChi').value = item.diaChi;
+            document.getElementById('editSdtCaNhan').value = item.sdtCaNhan;
+            document.getElementById('editSdtNguoiThan').value = item.sdtNguoiThan;
+            document.getElementById('editQuanHe').value = item.quanHe;
+            document.getElementById('editFilePdf').value = ""; 
+            
+            editModal.show();
+        }
+
+        function getBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        // LƯU CẬP NHẬT HỒ SƠ
+        document.getElementById('editForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!confirm("XÁC NHẬN:\nBạn có chắc chắn muốn LƯU CÁC THAY ĐỔI của hồ sơ đăng ký này?")) {
+                return; 
+            }
+
+            const btn = document.getElementById('btnSaveEdit');
+            btn.innerHTML = "Đang lưu thay đổi...";
+            btn.disabled = true;
+
+            let payload = {
+                action: "update",
+                sheetName: "DangKy_HienXac",
+                rowNumber: document.getElementById('editRowNumber').value,
+                oldLinkFile: document.getElementById('editOldLinkFile').value, // Giữ link PDF cũ nếu không chọn file mới
+                maSoHoSo: document.getElementById('editMaSoHoSo').value,
+                hoTen: document.getElementById('editHoTen').value,
+                ngaySinh: formatDateToVN(document.getElementById('editNgaySinh').value),
+                gioiTinh: document.getElementById('editGioiTinh').value,
+                diaChi: document.getElementById('editDiaChi').value,
+                sdtCaNhan: document.getElementById('editSdtCaNhan').value,
+                sdtNguoiThan: document.getElementById('editSdtNguoiThan').value,
+                quanHe: document.getElementById('editQuanHe').value,
+                ngayDangKy: formatDateToVN(document.getElementById('editNgayDangKy').value)
+            };
+
+            const fileInput = document.getElementById('editFilePdf');
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                if (file.type !== "application/pdf") {
+                    alert("Vui lòng chỉ tải lên file PDF.");
+                    btn.innerHTML = "Lưu Thay Đổi";
+                    btn.disabled = false;
+                    return;
+                }
+                if(file.size > 5 * 1024 * 1024) {
+                    alert("Kích thước file PDF phải dưới 5MB.");
+                    btn.innerHTML = "Lưu Thay Đổi";
+                    btn.disabled = false;
+                    return;
+                }
+                payload.base64Data = await getBase64(file);
+                payload.fileName = file.name;
+                payload.mimeType = file.type;
+            }
+
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(result => {
+                alert("Cập nhật hồ sơ đăng ký thành công!");
+                editModal.hide();
+                btn.innerHTML = "Lưu Thay Đổi";
+                btn.disabled = false;
+                loadData(); 
+            })
+            .catch(error => {
+                alert("Lỗi khi cập nhật!");
+                btn.innerHTML = "Lưu Thay Đổi";
+                btn.disabled = false;
+            });
+        });
+    </script>
+</body>
+</html>

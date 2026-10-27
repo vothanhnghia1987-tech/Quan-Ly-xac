@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Ký Hiến Xác</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f4f7f6; }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- KHÓA BẢO VỆ TRANG -->
+    <script>
+        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+    </script>
+    
+    <div class="container mt-4 mb-5">
+        <a href="index.html" class="btn btn-outline-secondary mb-4">
+            <i class="fa-solid fa-arrow-left"></i> Về trang chủ
+        </a>
+
+        <h2 class="text-center mb-4 text-success fw-bold">TIẾP NHẬN ĐƠN ĐĂNG KÝ HIẾN XÁC</h2>
+        
+        <div class="card shadow-sm p-4 mb-5 border-success">
+            <h5 class="mb-4 text-secondary"><i class="fa-solid fa-address-card"></i> Thông tin người đăng ký</h5>
+            <form id="dangKyForm">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Mã số hồ sơ đăng ký</label>
+                        <input type="text" class="form-control" id="maSoHoSo" required>
+                    </div>
+                    <div class="col-md-8 mb-3">
+                        <label class="form-label fw-bold">Họ và tên</label>
+                        <input type="text" class="form-control" id="hoTen" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Ngày tháng năm sinh</label>
+                        <input type="date" class="form-control" id="ngaySinh" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Giới tính</label>
+                        <select class="form-select" id="gioiTinh" required>
+                            <option value="">-- Chọn --</option>
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Ngày tháng đăng ký</label>
+                        <input type="date" class="form-control" id="ngayDangKy" required>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label fw-bold">Địa chỉ thường trú</label>
+                        <input type="text" class="form-control" id="diaChi">
+                    </div>
+                    
+                    <h5 class="mb-3 mt-3 text-secondary"><i class="fa-solid fa-phone"></i> Thông tin liên hệ</h5>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">SĐT cá nhân</label>
+                        <input type="text" class="form-control" id="sdtCaNhan">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">SĐT người thân</label>
+                        <input type="text" class="form-control" id="sdtNguoiThan">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Quan hệ với người thân</label>
+                        <input type="text" class="form-control" id="quanHe" placeholder="VD: Vợ, Con trai...">
+                    </div>
+
+                    <h5 class="mb-3 mt-3 text-secondary"><i class="fa-solid fa-file-pdf"></i> Hồ sơ đính kèm</h5>
+                    <div class="col-md-12 mb-4">
+                        <label class="form-label fw-bold">Tải lên Đơn đăng ký (File PDF)</label>
+                        <input type="file" class="form-control border-success" id="filePdf" accept="application/pdf">
+                        <small class="text-muted">Chỉ chấp nhận định dạng .pdf (Dung lượng &lt; 5MB)</small>
+                    </div>
+                </div>
+
+                <hr class="my-3">
+                <button type="submit" class="btn btn-success w-100 py-2 fs-5 fw-bold" id="submitBtn">Lưu Hồ Sơ Đăng Ký</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // THẦY DÁN WEB APP URL CỦA THẦY VÀO ĐÂY
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxFsJ9GHvepEb-jz5b4H-UWcrmql-kjwATP5Y2fD-vbMNOV3fyQ_CE9YSGspvAEbS7fsg/exec"; 
+
+        function getBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        // Hàm chuyển đổi ngày YYYY-MM-DD sang chuẩn Việt Nam DD/MM/YYYY
+        // Thêm dấu nháy đơn (') phía trước để Google Sheets hiểu là chữ, không tự ý đổi định dạng
+        function formatDateToVN(dateString) {
+            if (!dateString) return "";
+            const parts = dateString.split('-');
+            if (parts.length === 3) {
+                return `'${parts[2]}/${parts[1]}/${parts[0]}`; 
+            }
+            return dateString;
+        }
+
+        document.getElementById('dangKyForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // 1. HỘP THOẠI XÁC NHẬN TRƯỚC KHI LƯU
+            if (!confirm("XÁC NHẬN:\nBạn có chắc chắn muốn lưu hồ sơ đăng ký này vào hệ thống?")) {
+                return; // Dừng lại nếu thầy bấm Hủy
+            }
+
+            const btn = document.getElementById('submitBtn');
+            btn.innerHTML = "Đang tải file lên và lưu dữ liệu...";
+            btn.disabled = true;
+
+            let payload = {
+                action: "add",
+                sheetName: "DangKy_HienXac",
+                maSoHoSo: document.getElementById('maSoHoSo').value,
+                hoTen: document.getElementById('hoTen').value,
+                // Gọi hàm format ngày trước khi gửi đi
+                ngaySinh: formatDateToVN(document.getElementById('ngaySinh').value),
+                gioiTinh: document.getElementById('gioiTinh').value,
+                diaChi: document.getElementById('diaChi').value,
+                sdtCaNhan: document.getElementById('sdtCaNhan').value,
+                sdtNguoiThan: document.getElementById('sdtNguoiThan').value,
+                quanHe: document.getElementById('quanHe').value,
+                // Gọi hàm format ngày trước khi gửi đi
+                ngayDangKy: formatDateToVN(document.getElementById('ngayDangKy').value)
+            };
+
+            const fileInput = document.getElementById('filePdf');
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                if (file.type !== "application/pdf") {
+                    alert("Vui lòng chỉ tải lên file PDF.");
+                    btn.innerHTML = "Lưu Hồ Sơ Đăng Ký";
+                    btn.disabled = false;
+                    return;
+                }
+                if (file.size > 5 * 1024 * 1024) {
+                    alert("Kích thước file PDF phải dưới 5MB.");
+                    btn.innerHTML = "Lưu Hồ Sơ Đăng Ký";
+                    btn.disabled = false;
+                    return;
+                }
+                payload.base64Data = await getBase64(file);
+                payload.fileName = file.name;
+                payload.mimeType = file.type;
+            }
+
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(result => {
+                alert("Đã lưu hồ sơ đăng ký thành công!");
+                document.getElementById('dangKyForm').reset();
+                btn.innerHTML = "Lưu Hồ Sơ Đăng Ký";
+                btn.disabled = false;
+            })
+            .catch(error => {
+                console.error(error);
+                alert("Có lỗi xảy ra trong quá trình lưu!");
+                btn.innerHTML = "Lưu Hồ Sơ Đăng Ký";
+                btn.disabled = false;
+            });
+        });
+    </script>
+</body>
+</html>
