@@ -2,69 +2,30 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Quản Lý / Tra Cứu</title>
-    <!-- Các link CSS có sẵn -->
-</head>
-<body class="bg-light">
-    <!-- 🔑 CHÈN ĐOẠN KHÓA BẢO VỆ VÀO ĐÂY -->
-    <script>
-        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
-            window.location.href = 'login.html';
-        }
-    </script>
-    <!-- -------------------------------- -->
-
-    <!-- Phần nội dung giao diện và script xử lý khác ở bên dưới giữ nguyên -->
-    <div class="container mt-4 mb-5">
-        ...
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Xác Hiến - Giải Phẫu Học</title>
-    <!-- Bootstrap 5 CSS -->
+    <title>Tiếp Nhận Xác Hiến - Giải Phẫu Học</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome cho biểu tượng -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #f4f7f6; }
-        .img-preview-box {
-            width: 100%;
-            height: 280px;
-            border: 2px dashed #adb5bd;
-            border-radius: 8px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            background-color: #f8f9fa;
-        }
-        .img-preview-box img {
-            max-width: 100%;
-            max-height: 100%;
-            display: none;
-            object-fit: contain;
-        }
-        .table th, .table td {
-            vertical-align: middle;
-        }
+        .img-preview-box { width: 100%; height: 280px; border: 2px dashed #adb5bd; border-radius: 8px; display: flex; justify-content: center; align-items: center; overflow: hidden; background-color: #f8f9fa; }
+        .img-preview-box img { max-width: 100%; max-height: 100%; display: none; object-fit: contain; }
+        .table th, .table td { vertical-align: middle; }
     </style>
 </head>
 <body class="bg-light">
+    <script>
+        if (sessionStorage.getItem('isLoggedIn') !== 'true') { window.location.href = 'login.html'; }
+    </script>
     <div class="container mt-4 mb-5">
-        <!-- Nút về trang chủ -->
-        <a href="index.html" class="btn btn-outline-secondary mb-4">
-            <i class="fa-solid fa-arrow-left"></i> Về trang chủ
-        </a>
-
-        <h2 class="text-center mb-4 text-primary fw-bold">HỆ THỐNG QUẢN LÝ XÁC HIẾN</h2>
+        <a href="index.html" class="btn btn-outline-secondary mb-4"><i class="fa-solid fa-arrow-left"></i> Về trang chủ</a>
+        <h2 class="text-center mb-4 text-primary fw-bold">TIẾP NHẬN XÁC HIẾN</h2>
         
-        <div class="card shadow-sm p-4 mb-5">
-            <h4 class="mb-4 text-secondary"><i class="fa-solid fa-file-circle-plus"></i> Thêm hồ sơ xác hiến mới</h4>
+        <div class="card shadow-sm p-4 mb-5 border-primary">
+            <h5 class="mb-4 text-secondary"><i class="fa-solid fa-file-circle-plus"></i> Tạo hồ sơ xác mới</h5>
             <form id="cadaverForm">
                 <div class="row">
-                    <!-- CỘT TRÁI: THÔNG TIN NHẬP LIỆU -->
+                    <!-- CỘT TRÁI -->
                     <div class="col-md-8">
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -72,7 +33,7 @@
                                 <input type="text" class="form-control" name="maSoXac" required>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">Mã số hồ sơ hiến</label>
+                                <label class="form-label fw-bold">Mã số hồ sơ</label>
                                 <input type="text" class="form-control" name="maSoHoSo" required>
                             </div>
                             <div class="col-md-12 mb-3">
@@ -92,46 +53,65 @@
                                 <input type="text" class="form-control" name="diaChi">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">Số điện thoại liên hệ</label>
+                                <label class="form-label fw-bold">SĐT liên hệ</label>
                                 <input type="text" class="form-control" name="sdt">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">Quan hệ với người hiến</label>
                                 <input type="text" class="form-control" name="quanHe" placeholder="VD: Con trai, Vợ...">
                             </div>
+
+                            <!-- 3 TRƯỜNG THÔNG TIN MỚI -->
+                            <h6 class="mt-3 text-primary border-bottom pb-2"><i class="fa-solid fa-info-circle"></i> Trạng thái bảo quản & Lưu trữ</h6>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">Tình trạng</label>
+                                <select class="form-select border-primary" name="tinhTrang">
+                                    <option value="">-- Chọn --</option>
+                                    <option value="Xác tươi">Xác tươi</option>
+                                    <option value="Xác ướp">Xác ướp</option>
+                                    <option value="Đã sử dụng - Trả tro cốt">Đã sử dụng - Trả tro cốt</option>
+                                    <option value="Đã sử dụng - Lưu tro cốt">Đã sử dụng - Lưu tro cốt</option>
+                                    <option value="Đã sử dụng - Xương thực hành">Đã sử dụng - Xương thực hành</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">Vị trí xác</label>
+                                <select class="form-select border-primary" name="viTri">
+                                    <option value="">-- Chọn --</option>
+                                    <option value="Tủ đông lạnh">Tủ đông lạnh</option>
+                                    <option value="Phòng thực hành">Phòng thực hành</option>
+                                    <option value="Hầm chứa xác">Hầm chứa xác</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">Ghi chú khác</label>
+                                <input type="text" class="form-control" name="ghiChu" placeholder="Nhập ghi chú...">
+                            </div>
                         </div>
 
-                        <!-- BẢNG ĐỘNG CHO PHẦN LỚP HỌC VÀ VÙNG MỔ -->
+                        <!-- BẢNG ĐỘNG LỚP HỌC -->
                         <div class="mb-3 mt-4">
-                            <label class="form-label fw-bold">Đã phục vụ cho các lớp sau:</label>
+                            <label class="form-label fw-bold text-success"><i class="fa-solid fa-user-doctor"></i> Đã phục vụ cho các lớp sau:</label>
                             <div class="table-responsive">
                                 <table class="table table-bordered table-sm" id="classTable">
                                     <thead class="table-light">
-                                        <tr>
-                                            <th style="width: 25%">Tên lớp</th>
-                                            <th style="width: 30%">Vùng mổ</th>
-                                            <th style="width: 35%">Ghi chú</th>
-                                            <th style="width: 10%" class="text-center">Xóa</th>
-                                        </tr>
+                                        <tr><th style="width: 25%">Tên lớp</th><th style="width: 30%">Vùng mổ</th><th style="width: 35%">Ghi chú</th><th style="width: 10%" class="text-center">Xóa</th></tr>
                                     </thead>
-                                    <tbody id="classTableBody">
-                                        <!-- Javascript sẽ tự động chèn dòng vào đây -->
-                                    </tbody>
+                                    <tbody id="classTableBody"></tbody>
                                 </table>
                             </div>
                             <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addRow()">+ Thêm lớp</button>
                         </div>
                     </div>
 
-                    <!-- CỘT PHẢI: HÌNH ẢNH NHẬN DIỆN -->
+                    <!-- CỘT PHẢI: HÌNH ẢNH -->
                     <div class="col-md-4 d-flex flex-column">
                         <label class="form-label fw-bold">Hình ảnh nhận diện</label>
                         <div class="img-preview-box mb-2">
                             <img id="imgPreview" src="" alt="Ảnh xem trước">
                             <span id="imgPlaceholder" class="text-muted">Chưa chọn ảnh</span>
                         </div>
-                        <input type="file" class="form-control" name="hinhAnh" id="hinhAnhInput" accept="image/*">
-                        <small class="text-muted mt-1">Ảnh chọn sẽ hiển thị xem trước trực tiếp.</small>
+                        <input type="file" class="form-control border-primary" name="hinhAnh" id="hinhAnhInput" accept="image/*">
                     </div>
                 </div>
 
@@ -144,87 +124,58 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // THẦY DÁN WEB APP URL CỦA THẦY VÀO ĐÂY
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxFsJ9GHvepEb-jz5b4H-UWcrmql-kjwATP5Y2fD-vbMNOV3fyQ_CE9YSGspvAEbS7fsg/exec"; 
-
-        // Danh sách vùng mổ cố định
         const REGIONS = ["Đầu", "Mặt", "Cổ", "Ngực", "Bụng", "Nách", "Cánh tay", "Cẳng tay", "Bàn tay", "Mông", "Đùi", "Cẳng chân", "Bàn chân", "Khớp háng", "Khớp gối"];
 
-        // Khởi tạo 1 dòng trống cho bảng khi tải trang
-        document.addEventListener("DOMContentLoaded", () => {
-            addRow();
-        });
+        document.addEventListener("DOMContentLoaded", () => { addRow(); });
 
-        // Hàm thêm dòng mới vào bảng
         function addRow() {
             const tbody = document.getElementById('classTableBody');
             const row = document.createElement('tr');
-            
             let options = '<option value="">-- Chọn vùng --</option>';
-            REGIONS.forEach(r => {
-                options += `<option value="${r}">${r}</option>`;
-            });
-
+            REGIONS.forEach(r => { options += `<option value="${r}">${r}</option>`; });
             row.innerHTML = `
                 <td><input type="text" class="form-control class-name" placeholder="VD: Y2022"></td>
                 <td><select class="form-select class-region">${options}</select></td>
                 <td><input type="text" class="form-control class-note" placeholder="..."></td>
-                <td class="text-center">
-                    <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove()">X</button>
-                </td>
+                <td class="text-center"><button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove()">X</button></td>
             `;
             tbody.appendChild(row);
         }
 
-        // Hiển thị ảnh xem trước ngay khi chọn file
         document.getElementById('hinhAnhInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             const imgPreview = document.getElementById('imgPreview');
             const imgPlaceholder = document.getElementById('imgPlaceholder');
-
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
-                    imgPreview.src = e.target.result;
-                    imgPreview.style.display = 'block';
-                    imgPlaceholder.style.display = 'none';
-                }
+                reader.onload = function(e) { imgPreview.src = e.target.result; imgPreview.style.display = 'block'; imgPlaceholder.style.display = 'none'; }
                 reader.readAsDataURL(file);
             } else {
-                imgPreview.style.display = 'none';
-                imgPlaceholder.style.display = 'block';
-                imgPreview.src = "";
+                imgPreview.style.display = 'none'; imgPlaceholder.style.display = 'block'; imgPreview.src = "";
             }
         });
 
-        // Hàm chuyển đổi File sang chuỗi Base64
         function getBase64(file) {
             return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
+                const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result); reader.onerror = error => reject(error);
             });
         }
 
-        // Xử lý gửi Form
         document.getElementById('cadaverForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            btn.innerHTML = "Đang xử lý ảnh và lưu...";
-            btn.disabled = true;
+            
+            if (!confirm("XÁC NHẬN:\nBạn có chắc chắn muốn lưu hồ sơ xác hiến này?")) return;
 
-            // Thu thập dữ liệu từ bảng lớp học
+            const btn = document.getElementById('submitBtn');
+            btn.innerHTML = "Đang tải ảnh và lưu..."; btn.disabled = true;
+
             let classList = [];
             document.querySelectorAll('#classTableBody tr').forEach(row => {
                 let name = row.querySelector('.class-name').value.trim();
                 let region = row.querySelector('.class-region').value;
                 let note = row.querySelector('.class-note').value.trim();
-                
-                if (name || region || note) { 
-                    let noteText = note ? ` | Ghi chú: ${note}` : '';
-                    classList.push(`Lớp: ${name || '---'} | Vùng: ${region || '---'}${noteText}`);
-                }
+                if (name || region || note) classList.push(`Lớp: ${name || '---'} | Vùng: ${region || '---'}${note ? ' | Ghi chú: ' + note : ''}`);
             });
 
             let payload = {
@@ -236,48 +187,31 @@
                 diaChi: document.querySelector('[name="diaChi"]').value,
                 sdt: document.querySelector('[name="sdt"]').value,
                 quanHe: document.querySelector('[name="quanHe"]').value,
-                vungMo: classList.join('\n') // Gom các dòng lại cách nhau bằng dấu xuống dòng
+                tinhTrang: document.querySelector('[name="tinhTrang"]').value,
+                viTri: document.querySelector('[name="viTri"]').value,
+                ghiChu: document.querySelector('[name="ghiChu"]').value,
+                vungMo: classList.join('\n')
             };
 
             const fileInput = document.getElementById('hinhAnhInput');
             if (fileInput.files.length > 0) {
                 const file = fileInput.files[0];
                 if(file.size > 5 * 1024 * 1024) {
-                    alert("Vui lòng chọn ảnh có kích thước dưới 5MB.");
-                    btn.innerHTML = "Lưu Hồ Sơ Xác Hiến";
-                    btn.disabled = false;
-                    return;
+                    alert("Kích thước ảnh phải dưới 5MB."); btn.innerHTML = "Lưu Hồ Sơ Xác Hiến"; btn.disabled = false; return;
                 }
-                payload.base64Data = await getBase64(file);
-                payload.fileName = file.name;
-                payload.mimeType = file.type;
+                payload.base64Data = await getBase64(file); payload.fileName = file.name; payload.mimeType = file.type;
             }
 
-            fetch(SCRIPT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify(payload)
-            })
+            fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) })
             .then(response => response.json())
             .then(result => {
-                alert("Đã lưu hồ sơ và upload ảnh thành công!");
+                alert("Đã tiếp nhận hồ sơ thành công!");
                 document.getElementById('cadaverForm').reset();
-                document.getElementById('imgPreview').style.display = 'none';
-                document.getElementById('imgPlaceholder').style.display = 'block';
-                
-                // Reset lại bảng về 1 dòng trống
-                document.getElementById('classTableBody').innerHTML = '';
-                addRow();
-
-                btn.innerHTML = "Lưu Hồ Sơ Xác Hiến";
-                btn.disabled = false;
+                document.getElementById('imgPreview').style.display = 'none'; document.getElementById('imgPlaceholder').style.display = 'block';
+                document.getElementById('classTableBody').innerHTML = ''; addRow();
+                btn.innerHTML = "Lưu Hồ Sơ Xác Hiến"; btn.disabled = false;
             })
-            .catch(error => {
-                console.error(error);
-                alert("Có lỗi xảy ra trong quá trình lưu!");
-                btn.innerHTML = "Lưu Hồ Sơ Xác Hiến";
-                btn.disabled = false;
-            });
+            .catch(error => { alert("Có lỗi xảy ra!"); btn.innerHTML = "Lưu Hồ Sơ Xác Hiến"; btn.disabled = false; });
         });
     </script>
 </body>
