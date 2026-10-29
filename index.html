@@ -38,10 +38,25 @@
     </style>
 </head>
 <body>
+    <!-- KHÓA BẢO VỆ VÀ XỬ LÝ ẨN/HIỆN PHÂN QUYỀN -->
     <script>
+        // 1. Kiểm tra đã đăng nhập chưa
         if (sessionStorage.getItem('isLoggedIn') !== 'true') {
             window.location.href = 'login.html';
         }
+        
+        // 2. Chờ tải xong giao diện rồi đọc Quyền để ẩn nhóm tương ứng
+        document.addEventListener("DOMContentLoaded", () => {
+            const role = sessionStorage.getItem('userRole');
+            if (role === 'dangky') {
+                // Chỉ làm đăng ký -> Ẩn Nhóm 2
+                document.getElementById('nhom-2').style.display = 'none';
+            } else if (role === 'quanly') {
+                // Chỉ làm tiếp nhận xác -> Ẩn Nhóm 1
+                document.getElementById('nhom-1').style.display = 'none';
+            }
+            // Nếu role là 'admin' thì bỏ qua, hiển thị toàn bộ
+        });
     </script>
 
     <div class="container mt-3 text-end">
@@ -57,51 +72,56 @@
             <p class="text-muted fs-5">Bộ môn Giải Phẫu Học - Phẫu thuật thực nghiệm</p>
         </div>
 
-        <!-- NHÓM 1: QUẢN LÝ HỒ SƠ ĐĂNG KÝ -->
-        <h4 class="text-success section-title"><i class="fa-solid fa-folder-open"></i> NHÓM 1: QUẢN LÝ HỒ SƠ ĐĂNG KÝ HIẾN XÁC</h4>
-        <div class="row justify-content-center g-4 mb-5">
-            <div class="col-md-6">
-                <a href="dang-ky.html" class="card shadow-sm p-4 text-center menu-card h-100 border-success">
-                    <div class="card-body">
-                        <div class="icon-box bg-success text-white fs-2"><i class="fa-solid fa-file-signature"></i></div>
-                        <h4 class="fw-bold text-success">Đăng Ký Hiến Xác</h4>
-                        <p class="text-muted mt-2 mb-0">Tiếp nhận đơn đăng ký của người sống, tải lên file PDF.</p>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-6">
-                <a href="tra-cuu-dang-ky.html" class="card shadow-sm p-4 text-center menu-card h-100 border-success">
-                    <div class="card-body">
-                        <div class="icon-box bg-success text-white fs-2"><i class="fa-solid fa-search"></i></div>
-                        <h4 class="fw-bold text-success">Tra Cứu Đăng Ký</h4>
-                        <p class="text-muted mt-2 mb-0">Tìm kiếm hồ sơ đã đăng ký. Đối chiếu với danh sách xác đã tiếp nhận.</p>
-                    </div>
-                </a>
+        <!-- BỌC TOÀN BỘ NHÓM 1 VÀO KHUNG CÓ ID LÀ nhom-1 -->
+        <div id="nhom-1">
+            <h4 class="text-success section-title"><i class="fa-solid fa-folder-open"></i> NHÓM 1: QUẢN LÝ HỒ SƠ ĐĂNG KÝ HIẾN XÁC</h4>
+            <div class="row justify-content-center g-4 mb-5">
+                <div class="col-md-6">
+                    <a href="dang-ky.html" class="card shadow-sm p-4 text-center menu-card h-100 border-success">
+                        <div class="card-body">
+                            <div class="icon-box bg-success text-white fs-2"><i class="fa-solid fa-file-signature"></i></div>
+                            <h4 class="fw-bold text-success">Đăng Ký Hiến Xác</h4>
+                            <p class="text-muted mt-2 mb-0">Tiếp nhận đơn đăng ký của người sống, tải lên file PDF.</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a href="tra-cuu-dang-ky.html" class="card shadow-sm p-4 text-center menu-card h-100 border-success">
+                        <div class="card-body">
+                            <div class="icon-box bg-success text-white fs-2"><i class="fa-solid fa-search"></i></div>
+                            <h4 class="fw-bold text-success">Tra Cứu Đăng Ký</h4>
+                            <p class="text-muted mt-2 mb-0">Tìm kiếm hồ sơ đã đăng ký. Đối chiếu với danh sách xác đã tiếp nhận.</p>
+                        </div>
+                    </a>
+                </div>
             </div>
         </div>
 
-        <!-- NHÓM 2: QUẢN LÝ XÁC ĐÃ TIẾP NHẬN -->
-        <h4 class="text-primary section-title"><i class="fa-solid fa-bed-pulse"></i> NHÓM 2: QUẢN LÝ XÁC ĐÃ TIẾP NHẬN</h4>
-        <div class="row justify-content-center g-4 mb-5">
-            <div class="col-md-6">
-                <a href="quan-ly.html" class="card shadow-sm p-4 text-center menu-card h-100 border-primary">
-                    <div class="card-body">
-                        <div class="icon-box bg-primary text-white fs-2"><i class="fa-solid fa-bed"></i></div>
-                        <h4 class="fw-bold text-primary">Tiếp Nhận Xác Hiến</h4>
-                        <p class="text-muted mt-2 mb-0">Tạo hồ sơ cho xác hiến đã được chuyển về Bộ môn, nhập lịch sử phẫu tích.</p>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-6">
-                <a href="tra-cuu.html" class="card shadow-sm p-4 text-center menu-card h-100 border-primary">
-                    <div class="card-body">
-                        <div class="icon-box bg-primary text-white fs-2"><i class="fa-solid fa-search"></i></div>
-                        <h4 class="fw-bold text-primary">Tra Cứu Hồ Sơ Xác</h4>
-                        <p class="text-muted mt-2 mb-0">Tìm kiếm, cập nhật lớp phục vụ hoặc xóa hồ sơ xác đã tiếp nhận.</p>
-                    </div>
-                </a>
+        <!-- BỌC TOÀN BỘ NHÓM 2 VÀO KHUNG CÓ ID LÀ nhom-2 -->
+        <div id="nhom-2">
+            <h4 class="text-primary section-title"><i class="fa-solid fa-bed-pulse"></i> NHÓM 2: QUẢN LÝ XÁC ĐÃ TIẾP NHẬN</h4>
+            <div class="row justify-content-center g-4 mb-5">
+                <div class="col-md-6">
+                    <a href="quan-ly.html" class="card shadow-sm p-4 text-center menu-card h-100 border-primary">
+                        <div class="card-body">
+                            <div class="icon-box bg-primary text-white fs-2"><i class="fa-solid fa-bed"></i></div>
+                            <h4 class="fw-bold text-primary">Tiếp Nhận Xác Hiến</h4>
+                            <p class="text-muted mt-2 mb-0">Tạo hồ sơ cho xác hiến đã được chuyển về Bộ môn, nhập lịch sử phẫu tích.</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a href="tra-cuu.html" class="card shadow-sm p-4 text-center menu-card h-100 border-primary">
+                        <div class="card-body">
+                            <div class="icon-box bg-primary text-white fs-2"><i class="fa-solid fa-search"></i></div>
+                            <h4 class="fw-bold text-primary">Tra Cứu Hồ Sơ Xác</h4>
+                            <p class="text-muted mt-2 mb-0">Tìm kiếm, cập nhật lớp phục vụ hoặc xóa hồ sơ xác đã tiếp nhận.</p>
+                        </div>
+                    </a>
+                </div>
             </div>
         </div>
+
     </div>
 </body>
 </html>

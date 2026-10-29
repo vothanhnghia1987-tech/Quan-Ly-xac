@@ -15,7 +15,16 @@
 </head>
 <body class="bg-light">
     <script>
-        if (sessionStorage.getItem('isLoggedIn') !== 'true') { window.location.href = 'login.html'; }
+        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        } else {
+            const role = sessionStorage.getItem('userRole');
+            // Nếu không phải admin VÀ không phải quanly thì đuổi ra
+            if (role !== 'admin' && role !== 'quanly') {
+                alert("Tài khoản của bạn không được cấp quyền truy cập Nhóm Tiếp nhận xác!");
+                window.location.href = 'index.html';
+            }
+        }
     </script>
     <div class="container mt-4 mb-5">
         <a href="index.html" class="btn btn-outline-secondary mb-4"><i class="fa-solid fa-arrow-left"></i> Về trang chủ</a>
